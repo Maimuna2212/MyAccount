@@ -1,98 +1,58 @@
-import * as Device from 'expo-device';
-import { Platform, StyleSheet } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { useRouter} from 'expo-router';
+import { useState }from 'react';
+import { Alert, Button, StyleSheet, Text, TextInput,View } from 'react-native';
 
-import { AnimatedIcon } from '@/components/animated-icon';
-import { HintRow } from '@/components/hint-row';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { WebBadge } from '@/components/web-badge';
-import { BottomTabInset, MaxContentWidth, Spacing } from '@/constants/theme';
+export default function RegistrationScreen() {
+  const router = useRouter();
+  const [userName, setUserName] = useState('');
+  const [email, setEmail] = useState('');
+  const [phoneNumber, setPhoneNumber] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  
 
-function getDevMenuHint() {
-  if (Platform.OS === 'web') {
-    return <ThemedText type="small">use browser devtools</ThemedText>;
-  }
-  if (Device.isDevice) {
-    return (
-      <ThemedText type="small">
-        shake device or press <ThemedText type="code">m</ThemedText> in terminal
-      </ThemedText>
-    );
-  }
-  const shortcut = Platform.OS === 'android' ? 'cmd+m (or ctrl+m)' : 'cmd+d';
-  return (
-    <ThemedText type="small">
-      press <ThemedText type="code">{shortcut}</ThemedText>
-    </ThemedText>
+  //handleReview function checks if all fields are filled and if passwords match before navigation to the Review screen. It usesAlert to show error messages if validation fails.
+  //'alert' is a built-in ReactNative component that displays an alert dialog with a message and optional buttons. In this case, it is used to show error messages when validation fails.
+
+  const handleReview=()=>{
+    if(!userName || !email|| !phoneNumber|| !password|| !confirmPassword) {
+      Alert.alert('Error', 'Please fill in all fields.');
+      return;
+    }
+
+    if(password !== confirmPassword){
+      Alert.alert('Error', 'Passwords do not match');
+      return;
+    }
+
+    router.push({
+      pathname: './review',//'pathname' specifies the path of the screen to navigate to. In this case, it navigates to the 'Review' screen.
+      params: {userName, email, phoneNumber}, //'parms' is an object that contains the data to be passed to the next screen. In this case, it passes the user's name, email, and phone number to the 'Review'screen.
+    });
+  };
+
+  return(
+    <View style={styles.container}>
+      <Text style={styles.title}>Create Your Account</Text>
+
+      {/*'placeholder' is used to show a hint to the user about what to enter in the input field*/}
+      {/*'onChangeText' is used to update the state when the user types in the input field*/}
+      {/*'keyboardType' is used to specify the type of keyboard to show (e.g, email, phone)*/}
+      {/*'secureTextEntry' is used to hide the text input (e.g, for passwords)*/}
+
+      <TextInput style = {styles.input} placeholder="Username" value={userName} onChangeText = {setUserName}/>
+      <TextInput style = {styles.input} placeholder="Email" keyboardType="email-address"  value={email} onChangeText = {setEmail}/>
+      <TextInput style = {styles.input} placeholder="PhoneNumber" keyboardType="phone-pad" value={phoneNumber} onChangeText = {setPhoneNumber}/>
+      <TextInput style = {styles.input} placeholder="Password" secureTextEntry value={password} onChangeText = {setPassword}/>
+      <TextInput style = {styles.input} placeholder="Confirm Password" secureTextEntry value={confirmPassword} onChangeText = {setConfirmPassword}/>
+
+      <Button title="Review Details" onPress={handleReview}/>
+    </View>
   );
 }
 
-export default function HomeScreen() {
-  return (
-    <ThemedView style={styles.container}>
-      <SafeAreaView style={styles.safeArea}>
-        <ThemedView style={styles.heroSection}>
-          <AnimatedIcon />
-          <ThemedText type="title" style={styles.title}>
-            Welcome to&nbsp;Expo
-          </ThemedText>
-        </ThemedView>
-
-        <ThemedText type="code" style={styles.code}>
-          get started
-        </ThemedText>
-
-        <ThemedView type="backgroundElement" style={styles.stepContainer}>
-          <HintRow
-            title="Try editing"
-            hint={<ThemedText type="code">src/app/index.tsx</ThemedText>}
-          />
-          <HintRow title="Dev tools" hint={getDevMenuHint()} />
-          <HintRow
-            title="Fresh start"
-            hint={<ThemedText type="code">npm run reset-project</ThemedText>}
-          />
-        </ThemedView>
-
-        {Platform.OS === 'web' && <WebBadge />}
-      </SafeAreaView>
-    </ThemedView>
-  );
-}
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    flexDirection: 'row',
-  },
-  safeArea: {
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    alignItems: 'center',
-    gap: Spacing.three,
-    paddingBottom: BottomTabInset + Spacing.three,
-    maxWidth: MaxContentWidth,
-  },
-  heroSection: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    flex: 1,
-    paddingHorizontal: Spacing.four,
-    gap: Spacing.four,
-  },
-  title: {
-    textAlign: 'center',
-  },
-  code: {
-    textTransform: 'uppercase',
-  },
-  stepContainer: {
-    gap: Spacing.three,
-    alignSelf: 'stretch',
-    paddingHorizontal: Spacing.three,
-    paddingVertical: Spacing.four,
-    borderRadius: Spacing.four,
-  },
+const styles=StyleSheet.create({
+  container:{flex:1, padding:20, justifyContent:'center'},
+  title:{fontSize:24, fontWeight:'bold', marginBottom:20, textAlign:'center'},
+  input:{borderWidth:1, borderColor:'#ccc', padding:12, marginBottom:15, borderRadius:8} 
 });
